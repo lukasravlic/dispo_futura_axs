@@ -6,10 +6,68 @@ import os
 import numpy as np
 import getpass
 
-hoy = datetime.datetime.today()
+#hoy = datetime.datetime.today()
+#hoy = datetime.date(2024, 10,14)
 #LECTURA DE DFS
 from pathlib import Path
 usuario = getpass.getuser()
+
+# %%
+
+
+# %%
+import tkinter as tk
+from tkinter import ttk
+from tkcalendar import DateEntry
+import datetime
+
+# Variable global para almacenar la fecha seleccionada
+fecha_seleccionada = None
+
+# Función que captura la fecha seleccionada y cierra la ventana
+def seleccionar_y_continuar():
+    global fecha_seleccionada
+    
+    # Obtener la fecha seleccionada como un objeto datetime.date
+    fecha_input = calendario.get_date()
+
+    # Convertir a datetime.date
+    fecha_seleccionada = fecha_input
+    
+    # Cerrar la ventana
+    ventana.destroy()
+
+# Crear la ventana principal
+ventana = tk.Tk()
+ventana.title("Selección de Fecha")
+ventana.geometry("300x250")
+
+# Etiqueta de instrucción
+label_instruccion = tk.Label(ventana, text="Selecciona una fecha:")
+label_instruccion.pack(pady=10)
+
+# Calendario de selección de fecha
+calendario = DateEntry(ventana, date_pattern='dd.mm.yyyy', background='darkblue', foreground='white', borderwidth=2)
+calendario.pack(pady=10)
+
+# Botón para capturar la fecha y continuar
+boton_ok = ttk.Button(ventana, text="OK", command=seleccionar_y_continuar)
+boton_ok.pack(pady=10)
+
+# Iniciar la aplicación
+ventana.mainloop()
+
+# Una vez que la ventana se cierra, la fecha ya está disponible como un objeto datetime.date
+print(f"Fecha seleccionada: {fecha_seleccionada}")
+
+# Aquí puedes continuar con el resto del código
+# Ejemplo: 
+# print(f"Usando la fecha seleccionada: {fecha_seleccionada}")
+
+
+
+# %%
+hoy = fecha_seleccionada
 
 
 # %%
@@ -44,7 +102,9 @@ def excel_to_dataframe(xl_name: str, sh_name: str) -> pd.DataFrame:
 dtypes = {'Material actual':'str'}
 
 # %%
-df_sp = pd.read_excel(f"C:/Users/{usuario}/Inchcape/Planificación y Compras Chile - Documentos/Planificación y Compras OEM/Planificación/Plan de Compras/2024/07 Julio 24/SP Julio V2.xlsx", sheet_name='Base', dtype = dtypes)
+ruta_sp = ruta_repo.joinpath('SP.csv')
+
+df_sp = pd.read_csv(ruta_sp , dtype = dtypes)
 
 # %%
 columnas= ['Nro_pieza_fabricante_1',	'Cod_Actual_1']
@@ -85,21 +145,67 @@ df_obs_1 = df_obs_1[columnas]
 # %%
 ruta_lt = f"C:/Users/{usuario}/Inchcape/Planificación y Compras Chile - Documentos/Planificación y Compras KPI-Reportes/Disponibilidad Futura/2024/AXS/bases_python/LT Actuales Mar-24.xlsx"
 df_lt = pd.read_excel(ruta_lt, header=1)
+
+
+import tkinter as tk
+from tkinter import filedialog
+import pandas as pd
+import os
+
+# Crear la ventana principal oculta (necesaria para abrir el explorador de archivos)
+root = tk.Tk()
+root.withdraw()  # Ocultar la ventana principal de tkinter
+
+# Abrir un cuadro de diálogo para seleccionar el archivo de stock
+archivo_tubo = filedialog.askopenfilename(
+    title="Selecciona el archivo de Stock",
+    filetypes=(("Archivos de Excel", "*.xlsx"), ("Todos los archivos", "*.*"))
+)
+
+# Verificar si se seleccionó algún archivo
+if archivo_tubo:
+    print(f"Archivo de Stock seleccionado: {archivo_tubo}")
+    dtypes = {'Almacén': 'str', 'Centro': 'str'}
+    
+    # Leer el archivo seleccionado
+    df_stock = pd.read_excel(archivo_tubo, dtype=dtypes, sheet_name='Sheet1')
+    print("Archivo de Stock cargado correctamente.")
+else:
+    print("No se seleccionó ningún archivo de Stock.")
+
+# Abrir un cuadro de diálogo para seleccionar el archivo de TR (Transito)
+archivo_tr = filedialog.askopenfilename(
+    title="Selecciona el archivo de TR FINAL R3 Consolidado",
+    filetypes=(("Archivos de Excel", "*.xlsx"), ("Todos los archivos", "*.*"))
+)
+
+# Verificar si se seleccionó algún archivo
+if archivo_tr:
+    print(f"Archivo de TR seleccionado: {archivo_tr}")
+    
+    # Leer el archivo seleccionado
+    df_tr = pd.read_excel(archivo_tr, sheet_name='Sheet1')
+    print("Archivo de TR cargado correctamente.")
+else:
+    print("No se seleccionó ningún archivo de TR.")
+
+
+
 # #STOCK
-ruta_tubo = f"C:/Users/{usuario}/Inchcape/Planificación y Compras Chile - Documentos/Planificación y Compras KPI-Reportes/Tubo Semanal"
-carpetas_tubo = os.listdir(ruta_tubo)
-tubo = carpetas_tubo[-3]
-ubi_tubo = ruta_tubo + '/' + tubo + '/' + tubo
-archivo_tr = ruta_tubo + '/' + tubo + '/' + tubo + ' - TR FINAL R3 - Consolidado.xlsx'
-archivo_tubo = ruta_tubo + '/' + tubo + '/' + tubo + ' - Stock R3.xlsx'
-print(tubo)
-dtypes = {'Almacén':'str', 'Centro':'str'}
-# dtypes = {'Almacén':'str'}
-df_stock = pd.read_excel(archivo_tubo, dtype = dtypes,sheet_name = 'Sheet1')
+# ruta_tubo = f"C:/Users/{usuario}/Inchcape/Planificación y Compras Chile - Documentos/Planificación y Compras KPI-Reportes/Tubo Semanal"
+# carpetas_tubo = os.listdir(ruta_tubo)
+# tubo = carpetas_tubo[-2]
+# ubi_tubo = ruta_tubo + '/' + tubo + '/' + tubo
+# archivo_tr = ruta_tubo + '/' + tubo + '/' + tubo + ' - TR FINAL R3 Consolidado.xlsx'
+# archivo_tubo = ruta_tubo + '/' + tubo + '/' + tubo + ' - Stock R3.xlsx'
+# print(tubo)
+# dtypes = {'Almacén':'str', 'Centro':'str'}
+# # dtypes = {'Almacén':'str'}
+# df_stock = pd.read_excel(archivo_tubo, dtype = dtypes,sheet_name = 'Sheet1')
 
 
-# #TRANSITO
-df_tr = pd.read_excel(archivo_tr,sheet_name = 'Sheet1')
+# # #TRANSITO
+# df_tr = pd.read_excel(archivo_tr,sheet_name = 'Sheet1')
 
 # %%
 #Reseteo de OBS
@@ -108,12 +214,6 @@ df_obs = df_obs_1
 
 # %%
 df_obs_1 = df_obs_1.rename(columns={'Último Eslabón': 'Ultimo Eslabon'}, inplace = True)
-
-# %% [markdown]
-# LECTURA CAD REMPLAZO
-
-# %%
-
 
 # %%
 df_sp_1 = df_sp_1.merge(cadena_de_remplazo, left_on='Material actual', right_on='Nro_pieza_fabricante_1', how='left')
@@ -130,26 +230,31 @@ df_codigo.drop_duplicates(subset='Material actual', inplace=True)
 df_mara.drop_duplicates(subset='Material_R3', inplace=True)
 
 # %%
-df_codigo.columns.to_list()
+
 
 # %%
-df_codigo = df_codigo[['Material actual','Cod_Actual_1','Descripción','Cod. Proveedor','Proveedor','Plan Híbrido UN','Origen','CES','PDI','Nuevo','Lead Time']]
+df_codigo = df_codigo[['Material actual','Cod_Actual_1','Descripción','Cod. Proveedor','Proveedor','Plan Híbrido 2 UN v2','Origen','CES','PDI','Nuevo','Lead Time']]
 
 # %%
 df_base = pd.merge(df_codigo, df_mara, left_on = 'Cod_Actual_1', right_on='Material_R3', how='left')
 df_base['Part_number'] = df_base['Part_number'].str.replace(r'\[\#\]', '', regex=True)
 
 # %%
-ruta_fc = f"C:/Users/{usuario}/Inchcape/Planificación y Compras Chile - Documentos/Planificación y Compras OEM/Demanda/Forecast Inbound/{(hoy).year}"
+ruta_fc = f"C:/Users/{usuario}/Inchcape/Planificación y Compras Chile - Documentos/Planificación y Compras OEM/Demanda y New Model Parts/Demanda/Demanda Mainstream/Forecast Colaborado/{(hoy).year}"
 lista_fc = os.listdir(ruta_fc)
 for i in lista_fc:
     if str(hoy.year) in i and str((hoy).month-1).zfill(2) in i:
         archivos_fc = os.listdir(ruta_fc + '/' + i)
         for j in archivos_fc:
             if 'AXS' in j:
-                archivo = ruta_fc + '/' + i + '/' + j 
-                print("Archivo Forecast: "+ '\n' + str(archivo))
-                df_fc = pd.read_excel(archivo,  sheet_name='Inbound SP', header=3,engine='openpyxl')
+                archivo_fc= ruta_fc + '/' + i + '/' + j
+                print("Archivo Forecast: "+ '\n' + archivo_fc )
+                df_fc = pd.read_excel(archivo_fc,  sheet_name='Inbound SP', header=3,engine='openpyxl')
+                # lista_archivo = os.listdir(ruta_fc + '/' + i + '/' + j)
+                # for a in lista_archivo:
+                #     print("Archivo Forecast: "+ '\n' + str(a))
+                #     archivo_fc = ruta_fc + '/' + i + '/' + j + '/' + a
+                #     df_fc = pd.read_excel(archivo_fc,  sheet_name='Inbound SP', header=3,engine='openpyxl')
 
 # %%
 df_fc_final = ['Último Eslabón']
@@ -167,6 +272,9 @@ df_fc_prom = df_fc[df_fc_final]
 df_fc_prom
 
 # %%
+
+
+# %%
 df_fc_prom = df_fc_prom.merge(cadena_de_remplazo, left_on='Último Eslabón', right_on='Nro_pieza_fabricante_1', how ='left')
 df_fc_prom['Cod_Actual_1'] = df_fc_prom['Cod_Actual_1'].fillna(df_fc_prom['Último Eslabón'])
 df_fc_prom
@@ -182,7 +290,7 @@ df_fc_prom.columns = [col.replace('sept', 'sep')  for col in df_fc_prom.columns]
 df_fc_prom = df_fc_prom.groupby('Cod_Actual_1').sum()
 df_fc_prom = df_fc_prom.reset_index()
 
-df_fc_prom.columns = [col[:-1] if col.endswith('3') else col for col in df_fc_prom.columns]
+df_fc_prom.columns = [col[:-1] if col.startswith('FC') else col for col in df_fc_prom.columns]
 
 
 # %%
@@ -281,6 +389,9 @@ df_base.drop(columns = columnas_drop, inplace=True)
 
 
 # %%
+df_fc_prom
+
+# %%
 df_base = df_base.merge(df_fc_prom, left_on='Cod_Actual_1', right_on = 'Cod_Actual_1', how='left')
 df_base = df_base.merge(df_fc_prom_venta, left_on='Cod_Actual_1', right_on = 'Cod_Actual_1', how='left')
 
@@ -355,11 +466,13 @@ df_base['Menor a 1'] = df_base.apply(lambda row: 'Menor que 1' if row['Promedio 
 
 # %%
 # hoy = datetime.date(2024, 6, 5)
-hoy = pd.to_datetime(hoy)
+#hoy = pd.to_datetime(hoy)
 
 # Add the 'Lead Time' to today's date to create the 'Semana LT' column
-df_base['Semana LT'] = (hoy + pd.to_timedelta(df_base['Lead Time'], unit='D')).dt.isocalendar().week
-df_base['Mes LT'] = (hoy + pd.to_timedelta(df_base['Lead Time'], unit='D')).dt.month
+df_base['Semana LT'] = (pd.Timestamp(hoy) + pd.to_timedelta(df_base['Lead Time'], unit='D')).apply(lambda x: x.isocalendar().week)
+
+df_base['Mes LT'] = (pd.Timestamp(hoy) + pd.to_timedelta(df_base['Lead Time'], unit='D')).dt.month
+
 
 
 # %%
@@ -424,9 +537,9 @@ df_base_2 =df_base
 # %%
 from datetime import timedelta
 
-# %%
-#current_date = datetime.date(2024,6,19)
-current_date = datetime.date.today()
+#current_date = datetime.date(2024,8,28)
+#current_date = datetime.datetime.today()
+current_date = hoy
 print(current_date.isocalendar())
 # Crear las columnas en base a las próximas 39 semanas en la base de datos 'b'
 for i in range(39):
@@ -442,6 +555,7 @@ for i in range(39):
         
     month_name = nombrar_mes(week_start.month)
     column_name = f"{year}-{month_name}-{week_number}"
+    print(column_name)
     
  
     df_base[column_name] = 0  # Inicializar todas las columnas con 0
@@ -451,19 +565,41 @@ for i in range(39):
 
 
 # %%
-filtered_df['Año'] = filtered_df['Fecha'].dt.year
-filtered_df['Month'] = filtered_df['Fecha'].dt.strftime('%B').str.lower().str[:3]
-filtered_df['Semana'] = filtered_df['Fecha'].dt.isocalendar().week
+# filtered_df['Año'] = filtered_df['Fecha'].dt.year
+# filtered_df['Month'] = filtered_df['Fecha'].dt.strftime('%B').str.lower().str[:3]
+# filtered_df['Semana'] = filtered_df['Fecha'].dt.isocalendar().week
 
 
 
 # %%
 filtered_df = filtered_df[filtered_df['Cantidad']>0]
 
-# %%
-df_base_2.columns.to_list()
 
 # %%
+import datetime
+
+def get_iso_week(date):
+    # Obtener la semana ISO de la fecha
+    iso_year, iso_week, _ = date.isocalendar()
+    
+    # Si la fecha es 31 de diciembre y la semana ISO es 1, ajustar a la semana del siguiente año
+    if date.month == 12 and (date.day == 31 or date.day==30) and iso_week == 1:
+        iso_year == 2025  # Aumentar solo el año, no dos años
+    
+    return iso_year, f"{iso_week:02d}"  # Asegura que la semana tenga dos dígitos
+
+# Actualizar la columna de semana y año
+filtered_df['Año'], filtered_df['Semana'] = zip(*filtered_df['Fecha'].apply(lambda x: get_iso_week(x)))
+
+# Función para obtener el mes
+def get_month(year, week):
+    return datetime.datetime.strptime(f'{year}-W{int(week)}-1', "%Y-W%W-%w").strftime('%B').lower()[:3]
+
+# Aplicar la función de mes
+filtered_df['Month'] = filtered_df.apply(lambda row: get_month(row['Año'], row['Semana']), axis=1)
+
+# Ahora df_base debe tener las ventas cruzadas en las columnas correspondientes
+# Primero, agrupamos las ventas por material, año, mes y semana
 grouped_sales = filtered_df.groupby(['Material', 'Año', 'Month', 'Semana'])['Cantidad'].sum().reset_index()
 grouped_sales['Año'] = grouped_sales['Año'].astype('str')
 grouped_sales['Semana'] = grouped_sales['Semana'].astype('int')  # Asegurarse de que Semana sea entero
@@ -472,22 +608,28 @@ grouped_sales['Semana'] = grouped_sales['Semana'].astype('int')  # Asegurarse de
 for index, row in grouped_sales.iterrows():
 
     product_code = row['Material']
-    week_number = row['Semana']
+    week_number = int(row['Semana'])  # Asegurar que sea un entero
     year = row['Año']
     column_name_pattern = f"{year}-{week_number:02d}"
     
-    # # Encuentra la columna en df_base que contenga el patrón
-    matching_columns = [col for col in df_base.columns if f'{year}-' in col and f'-{str(week_number)}' in col]
+    # Encuentra la columna en df_base que coincida exactamente con el patrón
+    matching_columns = [col for col in df_base.columns if f'{year}-' in col and f'-{week_number:02d}' in col]
     
-    if matching_columns:
-        print(matching_columns)
-        matching_column = matching_columns[0]  # Asumimos que solo hay una coincidencia por patrón
+    # Verificar si hay exactamente una coincidencia
+    if len(matching_columns) == 1:
+        matching_column = matching_columns[0]
         df_base.loc[df_base['Cod_Actual_1'] == product_code, matching_column] = row['Cantidad']
-    
-# Ahora df_base debe tener las ventas cruzadas en las columnas correspondientes
+    elif len(matching_columns) > 1:
+        # Si hay más de una coincidencia, mostrar un mensaje de advertencia
+        print(f"Advertencia: Múltiples coincidencias para el patrón '{column_name_pattern}' en las columnas: {matching_columns}")
+    else:
+        # Si no se encuentra ninguna coincidencia
+        print(f"No se encontró ninguna columna que coincida con el patrón '{column_name_pattern}'")
 
 
 # %%
+
+
 df_base['Faltante AP'] = 0
 
 # %%
@@ -682,24 +824,11 @@ for col in cump_cols:
 
 
 # %%
-cump_cols = [col for col in df_base_aux.columns if 'CUMPLIMIENTO' in col]
-
-df_base_aux['NNSS_Promedio'] = df_base_aux[cump_cols[:20]].mean(axis=1)
-df_base_aux['NNSS_Promedio_Aereo'] = df_base_aux[cump_cols[:12]].mean(axis=1)
-
-
-# %%
-ns_cols = [col for col in df_base_aux.columns if 'NNSS_P' in col and not 'Promedio' in col]
-
-# %%
-
-
-# %%
-df_base_aux.head()
+ns_cols = [col for col in df_base_aux.columns if 'NNSS_P' in col]
 
 # %%
 for col in ns_cols:
-    print(col)
+
     mes = col[14:17]
     año = col[11:13]
     #print(nombre_columna)
@@ -715,7 +844,7 @@ for col in ns_cols:
     
     
     columna_fc = f'FC {mes_español}-{año}'
-    print(columna_fc)
+
     
 
     df_base_aux[nombre_columna] = df_base_aux[columna_fc]
@@ -725,11 +854,18 @@ for col in ns_cols:
 
 
 
-    columna_fc = f'FC {mes_español}-{año}'
+    # columna_fc = f'FC {mes_español}-{año}'
 
-    df_base_aux[nombre_columna] = df_base[col] * df_base_aux[columna_fc]
+    # df_base_aux[nombre_columna] = df_base[col] * df_base_aux[columna_fc]
 
     
+
+
+# %%
+cump_cols = [col for col in df_base_aux.columns if 'CUMPLIMIENTO' in col]
+
+df_base_aux['NNSS_Promedio'] = df_base_aux[cump_cols[:20]].mean(axis=1)
+df_base_aux['NNSS_Promedio_Aereo'] = df_base_aux[cump_cols[:12]].mean(axis=1)
 
 
 # %%
@@ -738,6 +874,9 @@ df_base_aux.to_excel(f'C:/Users/{usuario}/Inchcape/Planificación y Compras Chil
 # %%
 sub_df = df_base_aux.filter(regex='^Cod_Actual_1$|^NNSS_P - ')
 sub_df_2 = df_base_aux.filter(regex = '^Cod_Actual_1$|^forecast - ')
+
+# %%
+sub_df[sub_df['Cod_Actual_1']=='ADHESIVODIESEL']
 
 # %%
 sub_df.columns
@@ -768,7 +907,13 @@ df_transformado.reset_index(drop=True, inplace=True)
 
 
 # %%
+
+
+# %%
 df_transformado_2['FC SEM'] = df_transformado_2['FC SEM'].str[11:]
+
+# %%
+df_transformado_2
 
 # %%
 df_transformado_2['ID'] = df_transformado_2['Cod_Actual_1'] + df_transformado_2['FC SEM']
@@ -796,12 +941,6 @@ df_transformado.nunique()
 df_transformado = df_transformado.merge(df_transformado_2, left_on='ID',right_on='ID', how='left')
 
 # %%
-df_transformado.columns
-
-# %%
-df_transformado
-
-# %%
 rename_cols = {'Cod_Actual_1_x':'Cod_Actual_1'}
 df_transformado.drop('Cod_Actual_1_y', inplace = True, axis=1)
 df_transformado.rename(columns=rename_cols, inplace = True)
@@ -813,13 +952,7 @@ reducir_cols = ['Cod_Actual_1','NNSS - AÑO-MES-SEM','Cumplimiento','Forecast']
 df_transformado = df_transformado[reducir_cols]
 
 # %%
-df_transformado
-
-# %%
-df_transformado[df_transformado['Cod_Actual_1']=='ZZJ118110']
-
-# %%
-df_transformado.to_csv(f'C:/Users//{usuario}/Inchcape/Planificación y Compras Chile - Documentos/Planificación y Compras KPI-Reportes/Disponibilidad Futura/2024/AXS/bases_python/base_pbi.csv')
+df_transformado.to_csv(f'C:/Users/{usuario}/Inchcape/Planificación y Compras Chile - Documentos/Planificación y Compras KPI-Reportes/Disponibilidad Futura/2024/AXS/bases_python/base_pbi.csv')
 
 # %%
 df_mara.dropna(subset=['Material_R3'], inplace=True)
